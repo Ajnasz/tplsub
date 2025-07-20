@@ -179,17 +179,28 @@ func main() {
 
 	// Check if the file exists
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		panic("File does not exist: " + fileName)
+		fmt.Fprintf(os.Stderr, "Error: Template file does not exist: %s\n", fileName)
+		os.Exit(1)
 	}
 
 	// Load data from JSON file if provided
 	var data any
 	if len(os.Args) > 2 {
-		dataFile := os.Args[2]
-		if content, err := os.ReadFile(dataFile); err == nil {
-			json.Unmarshal(content, &data)
+		if os.Args[2] == "--" {
+			// load from stdin
+			err := json.NewDecoder(os.Stdin).Decode(&data)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading JSON from stdin: %v\n", err)
+				os.Exit(1)
+			}
 		} else {
-			log.Printf("Warning: Could not read data file %s: %v\n", dataFile, err)
+			dataFile := os.Args[2]
+			if content, err := os.ReadFile(dataFile); err == nil {
+				json.Unmarshal(content, &data)
+			} else {
+				fmt.Fprintf(os.Stderr, "Using empty data for template execution.\n")
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -198,6 +209,7 @@ func main() {
 	tmpl = template.Must(tmpl.ParseFiles(fileName))
 
 	if err := tmpl.ExecuteTemplate(os.Stdout, filepath.Base(fileName), data); err != nil {
-		log.Fatalf("Error executing template: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error executing template: %v\n", err)
+		os.Exit(1)
 	}
 }
