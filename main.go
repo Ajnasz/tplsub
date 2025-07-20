@@ -37,6 +37,41 @@ func toInt(s any) (int, error) {
 	}
 }
 
+func toFloat(s any) (float64, error) {
+	switch v := s.(type) {
+	case float64:
+		return v, nil
+	case float32:
+		return float64(v), nil
+	case int:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case string:
+		var f float64
+		_, err := fmt.Sscanf(v, "%f", &f)
+		if err != nil {
+			return 0, fmt.Errorf("cannot convert string '%s' to float: %w", v, err)
+		}
+		return f, nil
+	default:
+		return 0, fmt.Errorf("unsupported type for conversion to float: %T", s)
+	}
+}
+
+func toFloat2(a any, b any) (float64, float64, error) {
+	aFloat, err := toFloat(a)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert first argument to float: %w", err)
+	}
+
+	bFloat, err := toFloat(b)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert second argument to float: %w", err)
+	}
+	return aFloat, bFloat, nil
+}
+
 func toInt2(a any, b any) (int, int, error) {
 	aInt, err := toInt(a)
 	if err != nil {
@@ -88,6 +123,14 @@ func createHelperFuncs() template.FuncMap {
 		"repeat":    strings.Repeat,
 
 		// Type conversion
+		"toFloat": func(v any) (float64, error) {
+			return toFloat(v)
+		},
+
+		"toInt": func(v any) (int, error) {
+			return toInt(v)
+		},
+
 		"toString": func(v any) string {
 			return fmt.Sprintf("%v", v)
 		},
@@ -130,6 +173,38 @@ func createHelperFuncs() template.FuncMap {
 				return 0, err
 			}
 			return aInt % bInt, nil
+		},
+		// Float math operations
+		"addf": func(a, b any) (float64, error) {
+			aFloat, bFloat, err := toFloat2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aFloat + bFloat, nil
+		},
+		"subf": func(a, b any) (float64, error) {
+			aFloat, bFloat, err := toFloat2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aFloat - bFloat, nil
+		},
+		"mulf": func(a, b any) (float64, error) {
+			aFloat, bFloat, err := toFloat2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aFloat * bFloat, nil
+		},
+		"divf": func(a, b any) (float64, error) {
+			aFloat, bFloat, err := toFloat2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			if bFloat == 0 {
+				return 0, fmt.Errorf("division by zero")
+			}
+			return aFloat / bFloat, nil
 		},
 
 		// Date/time formatting

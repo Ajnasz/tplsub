@@ -1,4 +1,4 @@
-all: filetpl paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
+all: filetpl paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
 
 .PHONY: filetpl
 filetpl:
@@ -59,6 +59,26 @@ mathHelpers:
 	@echo '{"a": 10, "b": 3}' | go run . --template 'Div: {{ div .a .b }}'
 	@echo
 	@echo '{"a": 10, "b": 3}' | go run . --template 'Mod: {{ mod .a .b }}'
+	@echo
+
+.PHONY: floatMathHelpers
+floatMathHelpers:
+	@echo 'Float math operation examples:'
+	@echo
+	@echo '{"a": 10.5, "b": 3.2}' | go run . --template 'Add float: {{ addf .a .b }}'
+	@echo
+	@echo '{"a": 10.5, "b": 3.2}' | go run . --template 'Sub float: {{ subf .a .b }}'
+	@echo
+	@echo '{"a": 10.5, "b": 3.2}' | go run . --template 'Mul float: {{ mulf .a .b }}'
+	@echo
+	@echo '{"a": 10.5, "b": 3.2}' | go run . --template 'Div float: {{ divf .a .b }}'
+	@echo
+	@echo '{"a": "15.75", "b": 4}' | go run . --template 'Mixed types: {{ addf .a .b }} (string + int)'
+	@echo
+	@echo '{"value": 42}' | go run . --template 'To float: {{ toFloat .value }} (converted to float)'
+	@echo
+	@echo '{"a": 22, "b": 7}' | go run . --template 'Precise division: {{ divf .a .b }} vs {{ div .a .b }}'
+	@echo
 	@echo
 
 .PHONY: dateHelpers

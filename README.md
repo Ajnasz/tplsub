@@ -97,6 +97,13 @@ Your data hash: {{ . | toJSON | md5 }}
 - `div` - Division: `{{ div 6 3 }}` → `2`
 - `mod` - Modulo: `{{ mod 7 3 }}` → `1`
 
+### Float Math Operations
+- `addf` - Float addition: `{{ addf 5.5 3.2 }}` → `8.7`
+- `subf` - Float subtraction: `{{ subf 5.5 3.2 }}` → `2.3`
+- `mulf` - Float multiplication: `{{ mulf 5.5 3.2 }}` → `17.6`
+- `divf` - Float division: `{{ divf 22 7 }}` → `3.142857142857143`
+- `toFloat` - Convert to float: `{{ toFloat "3.14" }}` → `3.14`
+
 ### Date/Time Functions
 - `now` - Current time: `{{ now }}`
 - `parseDate` - Parse date: `{{ parseDate "2006-01-02" "2023-12-25" }}`
