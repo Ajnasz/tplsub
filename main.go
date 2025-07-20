@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"iter"
 	"os"
 	"path/filepath"
 	"strings"
@@ -298,18 +299,22 @@ func createHelperFuncs() template.FuncMap {
 		"env": os.Getenv,
 
 		// Loop helpers
-		"seq": func(start, end int) []int {
-			var result []int
-			if start <= end {
-				for i := start; i <= end; i++ {
-					result = append(result, i)
-				}
-			} else {
-				for i := start; i >= end; i-- {
-					result = append(result, i)
+		"seq": func(start, end int) iter.Seq[int] {
+			return func(yield func(int) bool) {
+				if start <= end {
+					for i := start; i <= end; i++ {
+						if !yield(i) {
+							return
+						}
+					}
+				} else {
+					for i := start; i >= end; i-- {
+						if !yield(i) {
+							return
+						}
+					}
 				}
 			}
-			return result
 		},
 
 		"toJSON": func(v any) (string, error) {
