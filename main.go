@@ -3,12 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/mattn/go-isatty"
 )
 
 // Helper functions for the template engine
@@ -34,51 +37,22 @@ func createHelperFuncs() template.FuncMap {
 		},
 
 		// Math operations
-		"add": func(a, b int) int { return a + b },
-		"sub": func(a, b int) int { return a - b },
-		"mul": func(a, b int) int { return a * b },
-		"div": func(a, b int) int {
-			if b == 0 {
-				return 0
-			}
-			return a / b
-		},
-		"mod": func(a, b int) int {
-			if b == 0 {
-				return 0
-			}
-			return a % b
-		},
-		"max": func(a, b int) int {
-			if a > b {
-				return a
-			}
-			return b
-		},
-		"min": func(a, b int) int {
-			if a < b {
-				return a
-			}
-			return b
-		},
-
-		// Comparison
-		"eq": func(a, b any) bool { return a == b },
-		"ne": func(a, b any) bool { return a != b },
-		"lt": func(a, b int) bool { return a < b },
-		"le": func(a, b int) bool { return a <= b },
-		"gt": func(a, b int) bool { return a > b },
-		"ge": func(a, b int) bool { return a >= b },
-
 		// Date/time formatting
 		"now": func() time.Time {
 			return time.Now()
 		},
+		"parseDate": func(format, dateStr string) (time.Time, error) {
+			t, err := time.Parse(format, dateStr)
+			if err != nil {
+				return time.Time{}, fmt.Errorf("failed to parse date '%s' with format '%s': %w", dateStr, format, err)
+			}
+			return t, nil
+		},
 		"formatDate": func(format string, t time.Time) string {
 			return t.Format(format)
 		},
-		"timestamp": func() int64 {
-			return time.Now().Unix()
+		"timestamp": func(t time.Time) int64 {
+			return t.Unix()
 		},
 		"year": func(t time.Time) int {
 			return t.Year()
@@ -171,45 +145,68 @@ func createHelperFuncs() template.FuncMap {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatalf("Usage: %s <template-file> [data-file]\n", os.Args[0])
-	}
+	var templateContent, dataFile string
 
-	fileName := os.Args[1]
-
-	// Check if the file exists
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Error: Template file does not exist: %s\n", fileName)
-		os.Exit(1)
-	}
-
-	// Load data from JSON file if provided
-	var data any
-	if len(os.Args) > 2 {
-		if os.Args[2] == "--" {
-			// load from stdin
-			err := json.NewDecoder(os.Stdin).Decode(&data)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error reading JSON from stdin: %v\n", err)
-				os.Exit(1)
-			}
-		} else {
-			dataFile := os.Args[2]
-			if content, err := os.ReadFile(dataFile); err == nil {
-				json.Unmarshal(content, &data)
-			} else {
-				fmt.Fprintf(os.Stderr, "Using empty data for template execution.\n")
-				os.Exit(1)
-			}
+	// Parse command-line arguments
+	switch {
+	case len(os.Args) < 2:
+		log.Fatalf("Usage: %s [-t template_string | template_file] [data_file]\n", os.Args[0])
+	case os.Args[1] == "-t" || os.Args[1] == "--template":
+		if len(os.Args) < 3 {
+			log.Fatalf("Error: template string is missing after %s\n", os.Args[1])
+		}
+		templateContent = os.Args[2]
+		if len(os.Args) > 3 {
+			dataFile = os.Args[3]
+		}
+	default:
+		templateFile := os.Args[1]
+		content, err := os.ReadFile(templateFile)
+		if err != nil {
+			log.Fatalf("Error reading template file: %v", err)
+		}
+		templateContent = string(content)
+		if len(os.Args) > 2 {
+			dataFile = os.Args[2]
 		}
 	}
 
-	// Create template with helper functions
-	tmpl := template.New(filepath.Base(fileName)).Funcs(createHelperFuncs())
-	tmpl = template.Must(tmpl.ParseFiles(fileName))
+	// Load data
+	var data any
+	var dataReader io.Reader = os.Stdin
 
-	if err := tmpl.ExecuteTemplate(os.Stdout, filepath.Base(fileName), data); err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing template: %v\n", err)
-		os.Exit(1)
+	if dataFile != "" {
+		file, err := os.Open(dataFile)
+		if err != nil {
+			log.Fatalf("Error opening data file: %v", err)
+		}
+		defer file.Close()
+		dataReader = file
+	}
+
+	decoder := json.NewDecoder(dataReader)
+	if err := decoder.Decode(&data); err != nil {
+		// Allow empty data if stdin is a TTY and no data is piped
+		if dataFile == "" {
+			if f, ok := dataReader.(*os.File); ok && isatty.IsTerminal(f.Fd()) {
+				data = make(map[string]any)
+			} else if err == io.EOF {
+				data = make(map[string]any)
+			} else {
+				log.Fatalf("Error reading JSON data: %v", err)
+			}
+		} else {
+			log.Fatalf("Error reading JSON data from %s: %v", dataFile, err)
+		}
+	}
+
+	// Create and execute template
+	tmpl, err := template.New("gotpl").Funcs(createHelperFuncs()).Parse(templateContent)
+	if err != nil {
+		log.Fatalf("Error parsing template: %v", err)
+	}
+
+	if err := tmpl.Execute(os.Stdout, data); err != nil {
+		log.Fatalf("Error executing template: %v", err)
 	}
 }
