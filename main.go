@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +16,39 @@ import (
 
 	"github.com/mattn/go-isatty"
 )
+
+func toInt(s any) (int, error) {
+	switch v := s.(type) {
+	case int:
+		return v, nil
+	case int64:
+		return int(v), nil
+	case float64:
+		return int(v), nil
+	case string:
+		var i int
+		_, err := fmt.Sscanf(v, "%d", &i)
+		if err != nil {
+			return 0, fmt.Errorf("cannot convert string '%s' to int: %w", v, err)
+		}
+		return i, nil
+	default:
+		return 0, fmt.Errorf("unsupported type for conversion to int: %T", s)
+	}
+}
+
+func toInt2(a any, b any) (int, int, error) {
+	aInt, err := toInt(a)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert first argument to int: %w", err)
+	}
+
+	bInt, err := toInt(b)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert second argument to int: %w", err)
+	}
+	return aInt, bInt, nil
+}
 
 // Helper functions for the template engine
 func createHelperFuncs() template.FuncMap {
@@ -28,9 +60,29 @@ func createHelperFuncs() template.FuncMap {
 		"trimLeft":  strings.TrimLeft,
 		"trimRight": strings.TrimRight,
 		"replace":   strings.Replace,
-		"split":     strings.Split,
-		"join":      strings.Join,
-		"contains":  strings.Contains,
+		"split": func(sep, str string) []string {
+			return strings.Split(str, sep)
+		},
+		"join": func(sep string, elems []any) string {
+			if len(elems) == 0 {
+				return ""
+			}
+
+			// Convert []any to []string
+			strElems := make([]string, len(elems))
+			for i, elem := range elems {
+				if str, ok := elem.(string); ok {
+					strElems[i] = str
+				} else {
+					strElems[i] = fmt.Sprintf("%v", elem) // Fallback to string conversion
+				}
+			}
+			// Join the string elements
+			return strings.Join(strElems, sep)
+		},
+		"contains": func(substr string, s string) bool {
+			return strings.Contains(s, substr)
+		},
 		"hasPrefix": strings.HasPrefix,
 		"hasSuffix": strings.HasSuffix,
 		"repeat":    strings.Repeat,
@@ -41,11 +93,44 @@ func createHelperFuncs() template.FuncMap {
 		},
 
 		// Math operations
-		"add": func(a, b int) int { return a + b },
-		"sub": func(a, b int) int { return a - b },
-		"mul": func(a, b int) int { return a * b },
-		"div": func(a, b int) int { return a / b },
-		"mod": func(a, b int) int { return a % b },
+		"add": func(a, b any) (int, error) {
+			aInt, bInt, err := toInt2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aInt + bInt, nil
+		},
+		"sub": func(a, b any) (int, error) {
+			aInt, bInt, err := toInt2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aInt - bInt, nil
+		},
+		"mul": func(a, b any) (int, error) {
+			aInt, bInt, err := toInt2(a, b)
+			if err != nil {
+				return 0, err
+			}
+
+			return aInt * bInt, nil
+		},
+		"div": func(a, b any) (int, error) {
+			aInt, bInt, err := toInt2(a, b)
+			if err != nil {
+				return 0, err
+			}
+
+			return aInt / bInt, nil
+		},
+		"mod": func(a, b any) (int, error) {
+
+			aInt, bInt, err := toInt2(a, b)
+			if err != nil {
+				return 0, err
+			}
+			return aInt % bInt, nil
+		},
 
 		// Date/time formatting
 		"now": func() time.Time {
@@ -204,10 +289,12 @@ func main() {
 	// Parse command-line arguments
 	switch {
 	case len(os.Args) < 2:
-		log.Fatalf("Usage: %s [-t template_string | template_file] [data_file]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s [-t template_string | template_file] [data_file]\n", os.Args[0])
+		os.Exit(1)
 	case os.Args[1] == "-t" || os.Args[1] == "--template":
 		if len(os.Args) < 3 {
-			log.Fatalf("Error: template string is missing after %s\n", os.Args[1])
+			fmt.Fprintf(os.Stderr, "Error: template string is missing after %s\n", os.Args[1])
+			os.Exit(1)
 		}
 		templateContent = os.Args[2]
 		if len(os.Args) > 3 {
@@ -217,7 +304,8 @@ func main() {
 		templateFile := os.Args[1]
 		content, err := os.ReadFile(templateFile)
 		if err != nil {
-			log.Fatalf("Error reading template file: %v", err)
+			fmt.Fprintf(os.Stderr, "Error reading template file: %v", err)
+			os.Exit(1)
 		}
 		templateContent = string(content)
 		if len(os.Args) > 2 {
@@ -232,7 +320,8 @@ func main() {
 	if dataFile != "" {
 		file, err := os.Open(dataFile)
 		if err != nil {
-			log.Fatalf("Error opening data file: %v", err)
+			fmt.Fprintf(os.Stderr, "Error opening data file: %v", err)
+			os.Exit(1)
 		}
 		defer file.Close()
 		dataReader = file
@@ -247,20 +336,24 @@ func main() {
 			} else if err == io.EOF {
 				data = make(map[string]any)
 			} else {
-				log.Fatalf("Error reading JSON data: %v", err)
+				fmt.Fprintf(os.Stderr, "Error reading JSON data: %v", err)
+				os.Exit(1)
 			}
 		} else {
-			log.Fatalf("Error reading JSON data from %s: %v", dataFile, err)
+			fmt.Fprintf(os.Stderr, "Error reading JSON data from %s: %v", dataFile, err)
+			os.Exit(1)
 		}
 	}
 
 	// Create and execute template
 	tmpl, err := template.New("gotpl").Funcs(createHelperFuncs()).Parse(templateContent)
 	if err != nil {
-		log.Fatalf("Error parsing template: %v", err)
+		fmt.Fprintf(os.Stderr, "Error parsing template: %v", err)
+		os.Exit(1)
 	}
 
 	if err := tmpl.Execute(os.Stdout, data); err != nil {
-		log.Fatalf("Error executing template: %v", err)
+		fmt.Fprintf(os.Stderr, "Error executing template: %v", err)
+		os.Exit(1)
 	}
 }
