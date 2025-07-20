@@ -1,4 +1,4 @@
-module gitea.lorien.space/Ajnasz/gotplsubst
+module gitea.lorien.space/Ajnasz/tplsub
 
 go 1.24.3
 

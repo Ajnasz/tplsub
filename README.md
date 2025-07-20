@@ -1,22 +1,22 @@
-# gotplsubst
+# tplsub
 
 A simple Go command-line tool for executing Go text templates with JSON data input.
 
 ## Description
 
-`gotplsubst` is a lightweight utility that takes a Go template and JSON data as input, executes the template with the provided data, and outputs the result to stdout. It's useful for template processing and text substitution tasks with dynamic data.
+`tplsub` is a lightweight utility that takes a Go template and JSON data as input, executes the template with the provided data, and outputs the result to stdout. It's useful for template processing and text substitution tasks with dynamic data.
 
 ## Installation
 
 ```bash
-go install gitea.lorien.space/Ajnasz/gotplsubst@latest
+go install gitea.lorien.space/Ajnasz/tplsub@latest
 ```
 
 Or clone and build locally:
 
 ```bash
-git clone https://gitea.lorien.space/Ajnasz/gotplsubst.git
-cd gotplsubst
+git clone https://gitea.lorien.space/Ajnasz/tplsub.git
+cd tplsub
 go build
 ```
 
@@ -24,11 +24,11 @@ go build
 
 ```bash
 # Using template file
-gotplsubst <template-file> [data-file]
+tplsub <template-file> [data-file]
 
 # Using inline template
-gotplsubst -t <template-string> [data-file]
-gotplsubst --template <template-string> [data-file]
+tplsub -t <template-string> [data-file]
+tplsub --template <template-string> [data-file]
 ```
 
 ### Arguments
@@ -41,24 +41,24 @@ gotplsubst --template <template-string> [data-file]
 
 You can provide JSON data in three ways:
 
-1. **From a file**: `gotplsubst template.tmpl data.json`
-2. **From stdin**: `echo '{"name": "John"}' | gotplsubst template.tmpl`
-3. **No data**: `gotplsubst template.tmpl` (empty data object will be used)
+1. **From a file**: `tplsub template.tmpl data.json`
+2. **From stdin**: `echo '{"name": "John"}' | tplsub template.tmpl`
+3. **No data**: `tplsub template.tmpl` (empty data object will be used)
 
 ### Examples
 
 ```bash
 # Execute a template file with data from stdin
-echo '{"FirstName": "John", "LastName": "Doe"}' | gotplsubst template.tmpl
+echo '{"FirstName": "John", "LastName": "Doe"}' | tplsub template.tmpl
 
 # Execute inline template with data from stdin
-echo '{"FirstName": "John", "LastName": "Doe"}' | gotplsubst -t 'Hello {{ .FirstName }} {{ .LastName }}'
+echo '{"FirstName": "John", "LastName": "Doe"}' | tplsub -t 'Hello {{ .FirstName }} {{ .LastName }}'
 
 # Execute template with data from file
-gotplsubst template.tmpl data.json
+tplsub template.tmpl data.json
 
 # Execute template without data
-gotplsubst -t 'Current time: {{ now | formatDate "2006-01-02 15:04:05" }}'
+tplsub -t 'Current time: {{ now | formatDate "2006-01-02 15:04:05" }}'
 ```
 
 ## Template Format
