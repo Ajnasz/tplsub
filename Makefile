@@ -1,4 +1,4 @@
-all: filetpl paramtpl parseDate repeat md5
+all: filetpl paramtpl parseDate repeat md5 toPrettyJson
 .PHONY: filetpl
 filetpl:
 	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . example.tmpl
@@ -16,4 +16,15 @@ parseDate:
 .PHONY: repeat
 repeat:
 	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . --template 'Repeat: {{ repeat .FirstName 3 }} {{ repeat .LastName  2 }}'
+	@echo
+
+.PHONY: md5
+md5:
+	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . --template 'MD5: {{ md5 .FirstName }} {{ md5 .LastName }}'
+	@echo
+
+
+.PHONY: toPrettyJSON
+toPrettyJson:
+	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . --template '{{ . | toPrettyJSON }}'
 	@echo

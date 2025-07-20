@@ -1,6 +1,10 @@
 package main
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,6 +41,12 @@ func createHelperFuncs() template.FuncMap {
 		},
 
 		// Math operations
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int { return a - b },
+		"mul": func(a, b int) int { return a * b },
+		"div": func(a, b int) int { return a / b },
+		"mod": func(a, b int) int { return a % b },
+
 		// Date/time formatting
 		"now": func() time.Time {
 			return time.Now()
@@ -140,6 +150,50 @@ func createHelperFuncs() template.FuncMap {
 				}
 			}
 			return result
+		},
+
+		"toJSON": func(v any) (string, error) {
+			data, err := json.Marshal(v)
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal to JSON: %w", err)
+			}
+			return string(data), nil
+		},
+
+		"toPrettyJSON": func(v any) (string, error) {
+			data, err := json.MarshalIndent(v, "", "  ")
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal to pretty JSON: %w", err)
+			}
+			return string(data), nil
+		},
+
+		// hashing functions
+		"sha256": func(s string) string {
+			hash := sha256.Sum256([]byte(s))
+			return fmt.Sprintf("%x", hash)
+		},
+
+		"md5": func(s string) string {
+			hash := md5.Sum([]byte(s))
+			return fmt.Sprintf("%x", hash)
+		},
+
+		"sha1": func(s string) string {
+			hash := sha1.Sum([]byte(s))
+			return fmt.Sprintf("%x", hash)
+		},
+
+		"base64Encode": func(s string) string {
+			return base64.StdEncoding.EncodeToString([]byte(s))
+		},
+
+		"base64Decode": func(s string) (string, error) {
+			data, err := base64.StdEncoding.DecodeString(s)
+			if err != nil {
+				return "", fmt.Errorf("failed to decode base64: %w", err)
+			}
+			return string(data), nil
 		},
 	}
 }
