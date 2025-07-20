@@ -60,6 +60,7 @@ mathHelpers:
 	@echo
 	@echo '{"a": 10, "b": 3}' | go run . --template 'Mod: {{ mod .a .b }}'
 	@echo
+	@echo
 
 .PHONY: floatMathHelpers
 floatMathHelpers:
@@ -84,6 +85,7 @@ floatMathHelpers:
 .PHONY: dateHelpers
 dateHelpers:
 	@echo 'Date/time helper examples:'
+	@echo
 	@echo '{}' | go run . --template 'Now: {{ now }}'
 	@echo
 	@echo '{}' | go run . --template 'Formatted: {{ now | formatDate "2006-01-02 15:04:05" }}'
@@ -92,10 +94,12 @@ dateHelpers:
 	@echo
 	@echo '{"date": "2023-12-25"}' | go run . --template 'Parsed: {{ parseDate "2006-01-02" .date }}'
 	@echo
+	@echo
 
 .PHONY: collectionHelpers
 collectionHelpers:
 	@echo 'Collection helper examples:'
+	@echo
 	@echo '{"items": ["first", "second", "third"]}' | go run . --template 'Length: {{ len .items }}'
 	@echo
 	@echo '{"items": ["first", "second", "third"]}' | go run . --template 'First: {{ first .items }}'
@@ -104,20 +108,24 @@ collectionHelpers:
 	@echo
 	@echo '{}' | go run . --template 'Sequence: {{ range seq 1 5 }}{{ . }} {{ end }}'
 	@echo
+	@echo
 
 .PHONY: conditionalHelpers
 conditionalHelpers:
 	@echo 'Conditional helper examples:'
+	@echo
 	@echo '{"name": ""}' | go run . --template 'Default: {{ default "Anonymous" .name }}'
 	@echo
 	@echo '{"name": "John"}' | go run . --template 'Default: {{ default "Anonymous" .name }}'
 	@echo
 	@echo '{"name": ""}' | go run . --template 'Empty check: {{ if empty .name }}Name is empty{{ else }}Name: {{ .name }}{{ end }}'
 	@echo
+	@echo
 
 .PHONY: fileHelpers
 fileHelpers:
 	@echo 'File path helper examples:'
+	@echo
 	@echo '{"path": "/home/user/document.txt"}' | go run . --template 'Basename: {{ basename .path }}'
 	@echo
 	@echo '{"path": "/home/user/document.txt"}' | go run . --template 'Dirname: {{ dirname .path }}'
@@ -126,18 +134,22 @@ fileHelpers:
 	@echo
 	@echo '{"dir": "/home", "subdir": "user", "file": "doc.txt"}' | go run . --template 'Join: {{ pathjoin .dir .subdir .file }}'
 	@echo
+	@echo
 
 .PHONY: envHelpers
 envHelpers:
 	@echo 'Environment helper examples:'
+	@echo
 	@echo '{}' | go run . --template 'Home: {{ env "HOME" }}'
 	@echo
 	@echo '{}' | go run . --template 'User: {{ env "USER" }}'
+	@echo
 	@echo
 
 .PHONY: hashingHelpers
 hashingHelpers:
 	@echo 'Hashing and encoding examples:'
+	@echo
 	@echo '{"text": "hello world"}' | go run . --template 'MD5: {{ md5 .text }}'
 	@echo
 	@echo '{"text": "hello world"}' | go run . --template 'SHA1: {{ sha1 .text }}'
@@ -147,4 +159,5 @@ hashingHelpers:
 	@echo '{"text": "hello world"}' | go run . --template 'Base64: {{ base64Encode .text }}'
 	@echo
 	@echo '{"encoded": "aGVsbG8gd29ybGQ="}' | go run . --template 'Decoded: {{ base64Decode .encoded }}'
+	@echo
 	@echo
