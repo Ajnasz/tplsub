@@ -59,7 +59,7 @@ func toFloat(s any) (float64, error) {
 	}
 }
 
-func toFloat2(a any, b any) (float64, float64, error) {
+func toFloatPair(a any, b any) (float64, float64, error) {
 	aFloat, err := toFloat(a)
 	if err != nil {
 		return 0, 0, fmt.Errorf("cannot convert first argument to float: %w", err)
@@ -72,7 +72,7 @@ func toFloat2(a any, b any) (float64, float64, error) {
 	return aFloat, bFloat, nil
 }
 
-func toInt2(a any, b any) (int, int, error) {
+func toIntPair(a any, b any) (int, int, error) {
 	aInt, err := toInt(a)
 	if err != nil {
 		return 0, 0, fmt.Errorf("cannot convert first argument to int: %w", err)
@@ -137,21 +137,21 @@ func createHelperFuncs() template.FuncMap {
 
 		// Math operations
 		"add": func(a, b any) (int, error) {
-			aInt, bInt, err := toInt2(a, b)
+			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
 			}
 			return aInt + bInt, nil
 		},
 		"sub": func(a, b any) (int, error) {
-			aInt, bInt, err := toInt2(a, b)
+			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
 			}
 			return aInt - bInt, nil
 		},
 		"mul": func(a, b any) (int, error) {
-			aInt, bInt, err := toInt2(a, b)
+			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
 			}
@@ -159,7 +159,7 @@ func createHelperFuncs() template.FuncMap {
 			return aInt * bInt, nil
 		},
 		"div": func(a, b any) (int, error) {
-			aInt, bInt, err := toInt2(a, b)
+			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
 			}
@@ -168,7 +168,7 @@ func createHelperFuncs() template.FuncMap {
 		},
 		"mod": func(a, b any) (int, error) {
 
-			aInt, bInt, err := toInt2(a, b)
+			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
 			}
@@ -176,28 +176,28 @@ func createHelperFuncs() template.FuncMap {
 		},
 		// Float math operations
 		"addf": func(a, b any) (float64, error) {
-			aFloat, bFloat, err := toFloat2(a, b)
+			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
 			}
 			return aFloat + bFloat, nil
 		},
 		"subf": func(a, b any) (float64, error) {
-			aFloat, bFloat, err := toFloat2(a, b)
+			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
 			}
 			return aFloat - bFloat, nil
 		},
 		"mulf": func(a, b any) (float64, error) {
-			aFloat, bFloat, err := toFloat2(a, b)
+			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
 			}
 			return aFloat * bFloat, nil
 		},
 		"divf": func(a, b any) (float64, error) {
-			aFloat, bFloat, err := toFloat2(a, b)
+			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
 			}
