@@ -1,8 +1,18 @@
-all: filetpl paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
+all: nodata filetpl datafile paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
+
+.PHONY: nodata
+nodata:
+	@go run . -t "hello world"
+	@echo
 
 .PHONY: filetpl
 filetpl:
-	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . example.tmpl
+	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . examples/example.tmpl
+
+.PHONY: datafile
+datafile:
+	@go run . -t 'Data file: {{ .FirstName }} {{ .LastName }}' examples/data.json
+	@echo
 
 .PHONY: paramtpl
 paramtpl:

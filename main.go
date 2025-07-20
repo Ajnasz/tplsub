@@ -407,21 +407,26 @@ func main() {
 		dataReader = file
 	}
 
-	decoder := json.NewDecoder(dataReader)
-	if err := decoder.Decode(&data); err != nil {
-		// Allow empty data if stdin is a TTY and no data is piped
-		if dataFile == "" {
-			if f, ok := dataReader.(*os.File); ok && isatty.IsTerminal(f.Fd()) {
-				data = make(map[string]any)
-			} else if err == io.EOF {
-				data = make(map[string]any)
+	if dataFile == "" && isatty.IsTerminal(os.Stdin.Fd()) {
+		data = make(map[string]any)
+	} else {
+		decoder := json.NewDecoder(dataReader)
+		if err := decoder.Decode(&data); err != nil {
+			// Allow empty data if stdin is a TTY and no data is piped
+			if dataFile == "" {
+				f, ok := dataReader.(*os.File)
+				if ok && isatty.IsTerminal(f.Fd()) {
+					data = make(map[string]any)
+				} else if err == io.EOF {
+					data = make(map[string]any)
+				} else {
+					fmt.Fprintf(os.Stderr, "Error reading JSON data: %v", err)
+					os.Exit(1)
+				}
 			} else {
-				fmt.Fprintf(os.Stderr, "Error reading JSON data: %v", err)
+				fmt.Fprintf(os.Stderr, "Error reading JSON data from %s: %v", dataFile, err)
 				os.Exit(1)
 			}
-		} else {
-			fmt.Fprintf(os.Stderr, "Error reading JSON data from %s: %v", dataFile, err)
-			os.Exit(1)
 		}
 	}
 
