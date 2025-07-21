@@ -1,4 +1,6 @@
-all: nodata filetpl datafile paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
+build:
+	@go build -o tplsub
+test: nodata filetpl datafile paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
 
 .PHONY: nodata
 nodata:
