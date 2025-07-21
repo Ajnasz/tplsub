@@ -48,11 +48,17 @@ stringHelpers:
 	@echo
 	@echo '{"text": "  hello  "}' | go run . --template 'Trim: "{{ .text | trim }}"'
 	@echo
+	@echo '{"text": "Hello World"}' | go run . --template 'Replace: "{{ .text | replace "World" "Gopher" }}"'
+	@echo
 	@echo '{"text": "hello,world,test"}' | go run . --template 'Split: {{ split "," .text }}'
 	@echo
 	@echo '{"items": ["a", "b", "c"]}' | go run . --template 'Join: {{ join "-" .items }}'
 	@echo
 	@echo '{"text": "hello world"}' | go run . --template 'Contains "world": {{ contains "world" .text }}'
+	@echo
+	@echo '{"text": "hello world"}' | go run . --template 'Has prefix "hello": {{ .text | hasPrefix "hello" }}'
+	@echo
+	@echo '{"text": "hello world"}' | go run . --template 'Has suffix "world": {{ .text | hasSuffix "world" }}'
 	@echo
 	@echo
 

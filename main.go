@@ -90,12 +90,12 @@ func toIntPair(a any, b any) (int, int, error) {
 func createHelperFuncs() template.FuncMap {
 	return template.FuncMap{
 		// String manipulation
-		"upper":     strings.ToUpper,
-		"lower":     strings.ToLower,
-		"trim":      strings.TrimSpace,
-		"trimLeft":  strings.TrimLeft,
-		"trimRight": strings.TrimRight,
-		"replace":   strings.Replace,
+		"upper": strings.ToUpper,
+		"lower": strings.ToLower,
+		"trim":  strings.TrimSpace,
+		"replace": func(old, n, s string) string {
+			return strings.Replace(s, old, n, -1)
+		},
 		"split": func(sep, str string) []string {
 			return strings.Split(str, sep)
 		},
@@ -119,9 +119,13 @@ func createHelperFuncs() template.FuncMap {
 		"contains": func(substr string, s string) bool {
 			return strings.Contains(s, substr)
 		},
-		"hasPrefix": strings.HasPrefix,
-		"hasSuffix": strings.HasSuffix,
-		"repeat":    strings.Repeat,
+		"hasPrefix": func(prefix, str string) bool {
+			return strings.HasPrefix(str, prefix)
+		},
+		"hasSuffix": func(suffix, str string) bool {
+			return strings.HasSuffix(str, suffix)
+		},
+		"repeat": strings.Repeat,
 
 		// Type conversion
 		"toFloat": func(v any) (float64, error) {

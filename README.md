@@ -77,8 +77,6 @@ Your data hash: {{ . | toJSON | md5 }}
 - `upper` - Convert to uppercase: `{{ "hello" | upper }}` → `HELLO`
 - `lower` - Convert to lowercase: `{{ "HELLO" | lower }}` → `hello`
 - `trim` - Trim whitespace: `{{ " hello " | trim }}` → `hello`
-- `trimLeft` - Trim left characters: `{{ trimLeft " " " hello" }}` → `hello`
-- `trimRight` - Trim right characters: `{{ trimRight " " "hello " }}` → `hello`
 - `replace` - Replace strings: `{{ replace "hello" "hi" "hello world" }}` → `hi world`
 - `split` - Split string: `{{ split "," "a,b,c" }}` → `[a b c]`
 - `join` - Join array: `{{ join "," (split ";" "a;b;c") }}` → `a,b,c`
