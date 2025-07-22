@@ -87,6 +87,11 @@ Your data hash: {{ . | toJSON | md5 }}
 
 ### Type Conversion
 - `toString` - Convert to string: `{{ toString 123 }}` → `123`
+- `toInt` - Convert to int: `{{ toInt "123" }}` → `123`
+- `toFloat` - Convert to float: `{{ toFloat "3.14" }}` → `3.14`
+- `toStrings` - Convert array to strings: `{{ toStrings [1 2 3] }}` → `["1" "2" "3"]`
+- `toInts` - Convert array to ints: `{{ toInts ["1" "2" "3"] }}` → `[1 2 3]`
+- `toFloats` - Convert array to floats: `{{ toFloats ["1.1" "2.2" "3.3"] }}` → `[1.1 2.2 3.3]`
 
 ### Math Operations
 - `add` - Addition: `{{ add 5 3 }}` → `8`
@@ -100,7 +105,6 @@ Your data hash: {{ . | toJSON | md5 }}
 - `subf` - Float subtraction: `{{ subf 5.5 3.2 }}` → `2.3`
 - `mulf` - Float multiplication: `{{ mulf 5.5 3.2 }}` → `17.6`
 - `divf` - Float division: `{{ divf 22 7 }}` → `3.142857142857143`
-- `toFloat` - Convert to float: `{{ toFloat "3.14" }}` → `3.14`
 
 ### Date/Time Functions
 - `now` - Current time: `{{ now }}`
