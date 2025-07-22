@@ -157,6 +157,37 @@ func TestTypeConversionFunctions(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("toStrings", func(t *testing.T) {
+		toStringsFunc := funcs["toStrings"]
+
+		tests := []struct {
+			input    []any
+			expected []string
+			hasError bool
+		}{
+			{[]any{1, 2.5, "hello"}, []string{"1", "2.5", "hello"}, false},
+			{[]any{"invalid", 42}, []string{"invalid", "42"}, false},
+			{[]any{true, nil}, []string{"true", ""}, false},
+			{[]any{}, []string{}, false},
+		}
+
+		for _, tt := range tests {
+			result, err := callFuncWithError(toStringsFunc, tt.input)
+			if tt.hasError {
+				if err == nil {
+					t.Errorf("expected error for input %v", tt.input)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("unexpected error for input %v: %v", tt.input, err)
+				}
+				if !equalValues(result, tt.expected) {
+					t.Errorf("expected %v, got %v", tt.expected, result)
+				}
+			}
+		}
+	})
 }
 
 // Test math operations
@@ -768,6 +799,8 @@ func callFuncWithError(fn any, args ...any) (any, error) {
 		return f(args[0], args[1])
 	case func(any) int:
 		return f(args[0]), nil
+	case func([]any) []string:
+		return f(args[0].([]any)), nil
 	case func([]any) any:
 		return f(args[0].([]any)), nil
 	case func(int, int, []any) []any:

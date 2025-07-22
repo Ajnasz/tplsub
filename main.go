@@ -10,74 +10,6 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-func toInt(s any) (int, error) {
-	switch v := s.(type) {
-	case int:
-		return v, nil
-	case int64:
-		return int(v), nil
-	case float64:
-		return int(v), nil
-	case string:
-		var i int
-		_, err := fmt.Sscanf(v, "%d", &i)
-		if err != nil {
-			return 0, fmt.Errorf("cannot convert string '%s' to int: %w", v, err)
-		}
-		return i, nil
-	default:
-		return 0, fmt.Errorf("unsupported type for conversion to int: %T", s)
-	}
-}
-
-func toFloat(s any) (float64, error) {
-	switch v := s.(type) {
-	case float64:
-		return v, nil
-	case float32:
-		return float64(v), nil
-	case int:
-		return float64(v), nil
-	case int64:
-		return float64(v), nil
-	case string:
-		var f float64
-		_, err := fmt.Sscanf(v, "%f", &f)
-		if err != nil {
-			return 0, fmt.Errorf("cannot convert string '%s' to float: %w", v, err)
-		}
-		return f, nil
-	default:
-		return 0, fmt.Errorf("unsupported type for conversion to float: %T", s)
-	}
-}
-
-func toFloatPair(a any, b any) (float64, float64, error) {
-	aFloat, err := toFloat(a)
-	if err != nil {
-		return 0, 0, fmt.Errorf("cannot convert first argument to float: %w", err)
-	}
-
-	bFloat, err := toFloat(b)
-	if err != nil {
-		return 0, 0, fmt.Errorf("cannot convert second argument to float: %w", err)
-	}
-	return aFloat, bFloat, nil
-}
-
-func toIntPair(a any, b any) (int, int, error) {
-	aInt, err := toInt(a)
-	if err != nil {
-		return 0, 0, fmt.Errorf("cannot convert first argument to int: %w", err)
-	}
-
-	bInt, err := toInt(b)
-	if err != nil {
-		return 0, 0, fmt.Errorf("cannot convert second argument to int: %w", err)
-	}
-	return aInt, bInt, nil
-}
-
 func showHelp() {
 	fmt.Printf(`tplsub - A Go template processor with JSON data input
 
@@ -130,7 +62,7 @@ AVAILABLE FUNCTIONS:
     System:     env
     JSON:       toJSON, toPrettyJSON
     Hash:       md5, sha1, sha256, base64Encode, base64Decode
-    Convert:    toString, toInt, toFloat
+    Convert:    toString, toStrings, toInt, toInts, toFloat, toFloats
 
 For detailed documentation and more examples, visit:
 https://gitea.lorien.space/Ajnasz/tplsub
@@ -197,10 +129,7 @@ func main() {
 		if err := decoder.Decode(&data); err != nil {
 			// Allow empty data if stdin is a TTY and no data is piped
 			if dataFile == "" {
-				f, ok := dataReader.(*os.File)
-				if ok && isatty.IsTerminal(f.Fd()) {
-					data = make(map[string]any)
-				} else if err == io.EOF {
+				if err == io.EOF {
 					data = make(map[string]any)
 				} else {
 					fmt.Fprintf(os.Stderr, "Error reading JSON data: %v", err)
@@ -214,14 +143,21 @@ func main() {
 	}
 
 	// Create and execute template
+	if err := executeTemplate(os.Stdout, templateContent, data); err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		os.Exit(1)
+	}
+}
+
+func executeTemplate(out io.Writer, templateContent string, data any) error {
 	tmpl, err := template.New("gotpl").Funcs(createHelperFuncs()).Parse(templateContent)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing template: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("error parsing template: %w", err)
 	}
 
-	if err := tmpl.Execute(os.Stdout, data); err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing template: %v", err)
-		os.Exit(1)
+	if err := tmpl.Execute(out, data); err != nil {
+		return fmt.Errorf("error executing template: %w", err)
 	}
+
+	return nil
 }

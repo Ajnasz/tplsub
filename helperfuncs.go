@@ -15,6 +15,100 @@ import (
 	"time"
 )
 
+func mmap[T any](m []any, f func(any) (T, error)) ([]T, error) {
+	result := make([]T, len(m))
+	for i, v := range m {
+		res, err := f(v)
+		if err != nil {
+			return nil, fmt.Errorf("error applying function to element %d: %w", i, err)
+		}
+		result[i] = res
+	}
+	return result, nil
+}
+
+func toInt(s any) (int, error) {
+	switch v := s.(type) {
+	case int:
+		return v, nil
+	case int64:
+		return int(v), nil
+	case float64:
+		return int(v), nil
+	case string:
+		var i int
+		_, err := fmt.Sscanf(v, "%d", &i)
+		if err != nil {
+			return 0, fmt.Errorf("cannot convert string '%s' to int: %w", v, err)
+		}
+		return i, nil
+	default:
+		return 0, fmt.Errorf("unsupported type for conversion to int: %T", s)
+	}
+}
+
+func toFloat(s any) (float64, error) {
+	switch v := s.(type) {
+	case float64:
+		return v, nil
+	case float32:
+		return float64(v), nil
+	case int:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case string:
+		var f float64
+		_, err := fmt.Sscanf(v, "%f", &f)
+		if err != nil {
+			return 0, fmt.Errorf("cannot convert string '%s' to float: %w", v, err)
+		}
+		return f, nil
+	default:
+		return 0, fmt.Errorf("unsupported type for conversion to float: %T", s)
+	}
+}
+
+func toFloatPair(a any, b any) (float64, float64, error) {
+	aFloat, err := toFloat(a)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert first argument to float: %w", err)
+	}
+
+	bFloat, err := toFloat(b)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert second argument to float: %w", err)
+	}
+	return aFloat, bFloat, nil
+}
+
+func toIntPair(a any, b any) (int, int, error) {
+	aInt, err := toInt(a)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert first argument to int: %w", err)
+	}
+
+	bInt, err := toInt(b)
+	if err != nil {
+		return 0, 0, fmt.Errorf("cannot convert second argument to int: %w", err)
+	}
+	return aInt, bInt, nil
+}
+
+func toString(x any) (string, error) {
+	if x == nil {
+		return "", nil
+	}
+	switch v := x.(type) {
+	case string:
+		return v, nil
+	case int, int64, float64:
+		return fmt.Sprintf("%v", v), nil
+	default:
+		return fmt.Sprintf("%v", x), nil
+	}
+}
+
 // Helper functions for the template engine
 func createHelperFuncs() template.FuncMap {
 	return template.FuncMap{
@@ -41,20 +135,28 @@ func createHelperFuncs() template.FuncMap {
 			return strings.HasSuffix(str, suffix)
 		},
 		"repeat": func(count int, s string) string {
-			fmt.Printf("Repeating string '%s' %d times %s\n", s, count, strings.Repeat(s, count))
 			return strings.Repeat(s, count)
 		},
+
 		// Type conversion
 		"toFloat": func(v any) (float64, error) {
 			return toFloat(v)
 		},
-
 		"toInt": func(v any) (int, error) {
 			return toInt(v)
 		},
-
 		"toString": func(v any) string {
-			return fmt.Sprintf("%v", v)
+			s, _ := toString(v)
+			return s
+		},
+		"toStrings": func(v []any) ([]string, error) {
+			return mmap(v, toString)
+		},
+		"toInts": func(v []any) ([]int, error) {
+			return mmap(v, toInt)
+		},
+		"toFloats": func(v []any) ([]float64, error) {
+			return mmap(v, toFloat)
 		},
 
 		// Math operations

@@ -1,6 +1,6 @@
 build:
 	@go build -o tplsub
-test: nodata filetpl datafile paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
+test: gotest nodata filetpl datafile paramtpl parseDate repeat md5 toPrettyJson stringHelpers mathHelpers floatMathHelpers dateHelpers collectionHelpers conditionalHelpers fileHelpers envHelpers hashingHelpers
 
 .PHONY: nodata
 nodata:
@@ -28,7 +28,7 @@ parseDate:
 
 .PHONY: repeat
 repeat:
-	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . --template 'Repeat: {{ repeat .FirstName 3 }} {{ repeat .LastName  2 }}'
+	@echo '{"FirstName": "John", "LastName": "Doe"}' | go run . --template 'Repeat: {{ .FirstName | repeat 3 }} {{ .LastName | repeat 2 }}'
 	@echo
 
 .PHONY: md5
@@ -54,7 +54,7 @@ stringHelpers:
 	@echo
 	@echo '{"text": "hello,world,test"}' | go run . --template 'Split: {{ split "," .text }}'
 	@echo
-	@echo '{"items": ["a", "b", "c"]}' | go run . --template 'Join: {{ join "-" .items }}'
+	@echo '{"items": ["a", "b", "c"]}' | go run . --template 'Join: {{ .items | toStrings | join "-" }}'
 	@echo
 	@echo '{"text": "hello world"}' | go run . --template 'Contains "world": {{ contains "world" .text }}'
 	@echo
@@ -179,3 +179,7 @@ hashingHelpers:
 	@echo '{"encoded": "aGVsbG8gd29ybGQ="}' | go run . --template 'Decoded: {{ base64Decode .encoded }}'
 	@echo
 	@echo
+
+.PHONY: gotest
+gotest:
+	@go test -v ./...
