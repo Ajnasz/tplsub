@@ -9,13 +9,13 @@ A simple Go command-line tool for executing Go text templates with JSON data inp
 ## Installation
 
 ```bash
-go install gitea.lorien.space/Ajnasz/tplsub@latest
+go install github.com/Ajnasz/tplsub@latest
 ```
 
 Or clone and build locally:
 
 ```bash
-git clone https://gitea.lorien.space/Ajnasz/tplsub.git
+git clone https://github.com/Ajnasz/tplsub.git
 cd tplsub
 go build
 ```

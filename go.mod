@@ -1,4 +1,4 @@
-module gitea.lorien.space/Ajnasz/tplsub
+module github.com/Ajnasz/tplsub
 
 go 1.24.3
 

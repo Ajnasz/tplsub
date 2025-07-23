@@ -65,7 +65,7 @@ AVAILABLE FUNCTIONS:
     Convert:    toString, toStrings, toInt, toInts, toFloat, toFloats
 
 For detailed documentation and more examples, visit:
-https://gitea.lorien.space/Ajnasz/tplsub
+https://github.com/Ajnasz/tplsub
 
 `, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
 }
