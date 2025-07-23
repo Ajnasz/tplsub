@@ -83,7 +83,7 @@ Your data hash: {{ . | toJSON | md5 }}
 - `contains` - Check if contains: `{{ contains "ell" "hello" }}` → `true`
 - `hasPrefix` - Check prefix: `{{ hasPrefix "he" "hello" }}` → `true`
 - `hasSuffix` - Check suffix: `{{ hasSuffix "lo" "hello" }}` → `true`
-- `repeat` - Repeat string: `{{ repeat "hi" 3 }}` → `hihihi`
+- `repeat` - Repeat string: `{{ repeat 3 "hi" }}` → `hihihi`
 
 ### Type Conversion
 - `toString` - Convert to string: `{{ toString 123 }}` → `123`
