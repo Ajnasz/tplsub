@@ -94,21 +94,21 @@ Your data hash: {{ . | toJSON | md5 }}
 - `toFloats` - Convert array to floats: `{{ toFloats ["1.1" "2.2" "3.3"] }}` → `[1.1 2.2 3.3]`
 
 ### Math Operations
-- `add` - Addition: `{{ add 5 3 }}` → `8`
-- `sub` - Subtraction: `{{ sub 5 3 }}` → `2`
-- `mul` - Multiplication: `{{ mul 5 3 }}` → `15`
-- `div` - Division: `{{ div 6 3 }}` → `2`
-- `mod` - Modulo: `{{ mod 7 3 }}` → `1`
+- `add` - Addition: `{{ 5 | add 3 }}` → `8`
+- `sub` - Subtraction: `{{ 5 | sub 3 }}` → `2`
+- `mul` - Multiplication: `{{ 5 | mul 3 }}` → `15`
+- `div` - Division: `{{ 6 | div 3 }}` → `2`
+- `mod` - Modulo: `{{ 7 | mod 3 }}` → `1`
 
 ### Float Math Operations
-- `addf` - Float addition: `{{ addf 5.5 3.2 }}` → `8.7`
-- `subf` - Float subtraction: `{{ subf 5.5 3.2 }}` → `2.3`
-- `mulf` - Float multiplication: `{{ mulf 5.5 3.2 }}` → `17.6`
-- `divf` - Float division: `{{ divf 22 7 }}` → `3.142857142857143`
+- `addf` - Float addition: `{{ 5.5 | addf  3.2 }}` → `8.7`
+- `subf` - Float subtraction: `{{ 5.5 | subf 3.2 }}` → `2.3`
+- `mulf` - Float multiplication: `{{ 5.5 | mulf 3.2 }}` → `17.6`
+- `divf` - Float division: `{{ 22 | divf 7 }}` → `3.142857142857143`
 
 ### Date/Time Functions
 - `now` - Current time: `{{ now }}`
-- `parseDate` - Parse date: `{{ parseDate "2006-01-02" "2023-12-25" }}`
+- `parseDate` - Parse date: `{{ "2023-12-25" | parseDate "2006-01-02" }}`
 - `formatDate` - Format date: `{{ now | formatDate "2006-01-02 15:04:05" }}`
 - `timestamp` - Unix timestamp: `{{ now | timestamp }}`
 - `year` - Get year: `{{ now | year }}`

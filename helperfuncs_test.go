@@ -203,10 +203,10 @@ func TestMathFunctions(t *testing.T) {
 			hasError bool
 		}{
 			{"add", "add", 5, 3, 8, false},
-			{"sub", "sub", 5, 3, 2, false},
+			{"sub", "sub", 3, 5, 2, false},
 			{"mul", "mul", 5, 3, 15, false},
-			{"div", "div", 15, 3, 5, false},
-			{"mod", "mod", 7, 3, 1, false},
+			{"div", "div", 3, 15, 5, false},
+			{"mod", "mod", 3, 7, 1, false},
 			{"add invalid", "add", "invalid", 3, 0, true},
 		}
 
@@ -240,10 +240,10 @@ func TestMathFunctions(t *testing.T) {
 			hasError bool
 		}{
 			{"addf", "addf", 5.5, 3.2, 8.7, false},
-			{"subf", "subf", 5.5, 3.2, 2.3, false},
+			{"subf", "subf", 3.2, 5.5, 2.3, false},
 			{"mulf", "mulf", 5.0, 3.0, 15.0, false},
-			{"divf", "divf", 15.0, 3.0, 5.0, false},
-			{"divf by zero", "divf", 15.0, 0.0, 0.0, true},
+			{"divf", "divf", 3.0, 15.0, 5.0, false},
+			{"divf by zero", "divf", 0.0, 15.0, 0.0, true},
 		}
 
 		for _, tt := range tests {
@@ -713,7 +713,7 @@ func TestTemplateErrorHandling(t *testing.T) {
 	}{
 		{
 			name:        "division by zero",
-			template:    `{{div 10 0}}`,
+			template:    `{{div 0 10}}`,
 			data:        nil,
 			shouldError: true,
 		},
@@ -821,6 +821,8 @@ func callFuncWithError(fn any, args ...any) (any, error) {
 		return f(args[0].(time.Time)), nil
 	case func(any) (string, error):
 		return f(args[0])
+	case func([]any) ([]string, error):
+		return f(args[0].([]any))
 	case func(string) (string, error):
 		return f(args[0].(string))
 	case func(...string) string:

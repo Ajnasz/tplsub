@@ -93,7 +93,7 @@ func TestExecuteTemplate(t *testing.T) {
 		},
 		{
 			name:     "math sub function",
-			template: "Sub: {{ sub .a .b }}",
+			template: "Sub: {{ .a | sub .b }}",
 			data:     map[string]any{"a": 10, "b": 3},
 			expected: "Sub: 7",
 		},
@@ -105,13 +105,13 @@ func TestExecuteTemplate(t *testing.T) {
 		},
 		{
 			name:     "math div function",
-			template: "Div: {{ div .a .b }}",
+			template: "Div: {{ .a | div .b }}",
 			data:     map[string]any{"a": 10, "b": 3},
 			expected: "Div: 3",
 		},
 		{
 			name:     "math mod function",
-			template: "Mod: {{ mod .a .b }}",
+			template: "Mod: {{ .a | mod .b }}",
 			data:     map[string]any{"a": 10, "b": 3},
 			expected: "Mod: 1",
 		},
@@ -125,7 +125,7 @@ func TestExecuteTemplate(t *testing.T) {
 		},
 		{
 			name:     "float sub function",
-			template: "Sub float: {{ subf .a .b }}",
+			template: "Sub float: {{ .a | subf .b }}",
 			data:     map[string]any{"a": 10.5, "b": 3.2},
 			expected: "Sub float: 7.3",
 		},
@@ -137,7 +137,7 @@ func TestExecuteTemplate(t *testing.T) {
 		},
 		{
 			name:     "float div function",
-			template: "Div float: {{ divf .a .b }}",
+			template: "Div float: {{ .a | divf .b }}",
 			data:     map[string]any{"a": 10.5, "b": 3.2},
 			expected: "Div float: 3.28125",
 		},
@@ -155,7 +155,7 @@ func TestExecuteTemplate(t *testing.T) {
 		},
 		{
 			name:     "precise division comparison",
-			template: "Precise division: {{ divf .a .b }} vs {{ div .a .b }}",
+			template: "Precise division: {{ .a | divf .b }} vs {{ .a | div .b }}",
 			data:     map[string]any{"a": 22, "b": 7},
 			expected: "Precise division: 3.142857142857143 vs 3",
 		},

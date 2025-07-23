@@ -15,18 +15,6 @@ import (
 	"time"
 )
 
-func mmap[T any](m []any, f func(any) (T, error)) ([]T, error) {
-	result := make([]T, len(m))
-	for i, v := range m {
-		res, err := f(v)
-		if err != nil {
-			return nil, fmt.Errorf("error applying function to element %d: %w", i, err)
-		}
-		result[i] = res
-	}
-	return result, nil
-}
-
 func toInt(s any) (int, error) {
 	switch v := s.(type) {
 	case int:
@@ -150,13 +138,37 @@ func createHelperFuncs() template.FuncMap {
 			return s
 		},
 		"toStrings": func(v []any) ([]string, error) {
-			return mmap(v, toString)
+			result := make([]string, len(v))
+			for i, val := range v {
+				str, err := toString(val)
+				if err != nil {
+					return nil, fmt.Errorf("error converting element %d to string: %w", i, err)
+				}
+				result[i] = str
+			}
+			return result, nil
 		},
 		"toInts": func(v []any) ([]int, error) {
-			return mmap(v, toInt)
+			result := make([]int, len(v))
+			for i, val := range v {
+				intVal, err := toInt(val)
+				if err != nil {
+					return nil, fmt.Errorf("error converting element %d to int: %w", i, err)
+				}
+				result[i] = intVal
+			}
+			return result, nil
 		},
 		"toFloats": func(v []any) ([]float64, error) {
-			return mmap(v, toFloat)
+			result := make([]float64, len(v))
+			for i, val := range v {
+				floatVal, err := toFloat(val)
+				if err != nil {
+					return nil, fmt.Errorf("error converting element %d to float: %w", i, err)
+				}
+				result[i] = floatVal
+			}
+			return result, nil
 		},
 
 		// Math operations
@@ -167,7 +179,7 @@ func createHelperFuncs() template.FuncMap {
 			}
 			return aInt + bInt, nil
 		},
-		"sub": func(a, b any) (int, error) {
+		"sub": func(b, a any) (int, error) {
 			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
@@ -182,7 +194,7 @@ func createHelperFuncs() template.FuncMap {
 
 			return aInt * bInt, nil
 		},
-		"div": func(a, b any) (int, error) {
+		"div": func(b, a any) (int, error) {
 			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
 				return 0, err
@@ -190,7 +202,7 @@ func createHelperFuncs() template.FuncMap {
 
 			return aInt / bInt, nil
 		},
-		"mod": func(a, b any) (int, error) {
+		"mod": func(b, a any) (int, error) {
 
 			aInt, bInt, err := toIntPair(a, b)
 			if err != nil {
@@ -206,7 +218,7 @@ func createHelperFuncs() template.FuncMap {
 			}
 			return aFloat + bFloat, nil
 		},
-		"subf": func(a, b any) (float64, error) {
+		"subf": func(b, a any) (float64, error) {
 			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
@@ -220,7 +232,7 @@ func createHelperFuncs() template.FuncMap {
 			}
 			return aFloat * bFloat, nil
 		},
-		"divf": func(a, b any) (float64, error) {
+		"divf": func(b, a any) (float64, error) {
 			aFloat, bFloat, err := toFloatPair(a, b)
 			if err != nil {
 				return 0, err
