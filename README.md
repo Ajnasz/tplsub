@@ -6,6 +6,10 @@ A simple Go command-line tool for executing Go text templates with JSON data inp
 
 `tplsub` is a lightweight utility that takes a Go template and JSON data as input, executes the template with the provided data, and outputs the result to stdout. It's useful for template processing and text substitution tasks with dynamic data.
 
+## Screencast
+
+[![asciicast](https://asciinema.org/a/733109.svg)](https://asciinema.org/a/733109)
+
 ## Installation
 
 ```bash
