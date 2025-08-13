@@ -8,7 +8,8 @@ A simple Go command-line tool for executing Go text templates with JSON data inp
 
 ## Screencast
 
-[![asciicast](https://asciinema.org/a/733109.svg)](https://asciinema.org/a/733109)
+[![asciicast](https://asciinema.org/a/733322.svg)](https://asciinema.org/a/733322)
+
 
 ## Installation
 
